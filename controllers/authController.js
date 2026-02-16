@@ -5,10 +5,19 @@ const sendEmail = require("../utils/sendEmail");
 
 
 const createToken = (res, user) => {
-const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
-res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
-};
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,        // ✅ MUST for HTTPS
+    sameSite: "none",    // ✅ MUST for cross-domain
+    path: "/",
+  });
+};
 
 exports.userRegister = async (req,res)=>{
 const { name,email,password } = req.body;
@@ -106,18 +115,13 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  try {
-    res.cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-    });
+  res.cookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
 
-    res.status(200).json({
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Logout failed" });
-  }
+  res.status(200).json({ message: "Logged out successfully" });
 };
