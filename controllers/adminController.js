@@ -1,6 +1,6 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const sendEmail = require("../utils/sendEmail");
+import bcrypt from "bcryptjs";
+import User from "../models/User";
+import { sendEmail } from "../utils/sendEmail.js";
 
 export const approveClient = async (req, res) => {
   const { clientId } = req.params;
