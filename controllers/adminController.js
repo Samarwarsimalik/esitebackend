@@ -11,7 +11,6 @@ exports.approveClient = async (req, res) => {
   if (client.isApproved)
     return res.json({ message: "Client already approved" });
 
-  // Generate random password
   const rawPassword = Math.random().toString(36).slice(-8);
   const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
@@ -19,7 +18,6 @@ exports.approveClient = async (req, res) => {
   client.isApproved = true;
   await client.save();
 
-  // Send password email via Brevo
   await sendEmail(
     client.email,
     "Your Account Approved",
@@ -30,7 +28,6 @@ exports.approveClient = async (req, res) => {
 
   res.json({ message: "Client approved and email sent" });
 };
-
 
 // Get all clients
 exports.getAllClients = async (req, res) => {
