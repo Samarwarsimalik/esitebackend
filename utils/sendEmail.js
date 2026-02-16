@@ -1,5 +1,9 @@
 // utils/sendEmail.js
-export const sendEmail = async (to, subject, html) => {
+
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args)); // Node <18 fallback
+
+const sendEmail = async (to, subject, html) => {
   try {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -16,8 +20,10 @@ export const sendEmail = async (to, subject, html) => {
     });
 
     const data = await response.json();
-    console.log("Email sent:", data);
+    console.log("Email sent successfully:", data);
   } catch (err) {
-    console.error("Error sending email:", err);
+    console.error("Brevo send error:", err);
   }
 };
+
+module.exports = sendEmail;

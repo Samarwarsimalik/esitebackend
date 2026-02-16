@@ -1,8 +1,9 @@
-import bcrypt from "bcryptjs";
-import User from "../models/User";
-import { sendEmail } from "../utils/sendEmail.js";
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const sendEmail = require("../utils/sendEmail");
 
-export const approveClient = async (req, res) => {
+// Approve client
+exports.approveClient = async (req, res) => {
   const { clientId } = req.params;
 
   const client = await User.findById(clientId);
@@ -21,7 +22,7 @@ export const approveClient = async (req, res) => {
   // Send password email via Brevo
   await sendEmail(
     client.email,
-    "Your Account is Approved",
+    "Your Account Approved",
     `<h3>Login Credentials</h3>
      <p>Email: ${client.email}</p>
      <p>Password: <b>${rawPassword}</b></p>`
