@@ -1,30 +1,23 @@
-const nodemailer = require("nodemailer");
-
-module.exports = async (to, subject, html) => {
+// utils/sendEmail.js
+export const sendEmail = async (to, subject, html) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": process.env.BREVO_API_KEY,
+        "Content-Type": "application/json",
       },
-      tls: {
-        rejectUnauthorized: false,
-      },
+      body: JSON.stringify({
+        sender: { name: "My Shop", email: "no-reply@yourdomain.com" }, // Brevo verified email
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
     });
 
-    await transporter.verify();
-
-    const info = await transporter.sendMail({
-      from: `"My Shop" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html, // Use 'html' here instead of 'text'
-    });
-
-    console.log("Email sent:", info.response);
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw error;
+    const data = await response.json();
+    console.log("Email sent:", data);
+  } catch (err) {
+    console.error("Error sending email:", err);
   }
 };

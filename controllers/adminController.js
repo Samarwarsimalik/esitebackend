@@ -2,16 +2,15 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const sendEmail = require("../utils/sendEmail");
 
-exports.approveClient = async (req, res) => {
+export const approveClient = async (req, res) => {
   const { clientId } = req.params;
 
   const client = await User.findById(clientId);
   if (!client) return res.status(404).json({ message: "Client not found" });
-
   if (client.isApproved)
     return res.json({ message: "Client already approved" });
 
-  // generate password
+  // Generate random password
   const rawPassword = Math.random().toString(36).slice(-8);
   const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
@@ -19,14 +18,16 @@ exports.approveClient = async (req, res) => {
   client.isApproved = true;
   await client.save();
 
-  // send email AFTER approval
+  // Send password email via Brevo
   await sendEmail(
     client.email,
-    "Your Account Approved",
-    `Your login password is: ${rawPassword}`
+    "Your Account is Approved",
+    `<h3>Login Credentials</h3>
+     <p>Email: ${client.email}</p>
+     <p>Password: <b>${rawPassword}</b></p>`
   );
 
-  res.json({ message: "Client approved & password sent" });
+  res.json({ message: "Client approved and email sent" });
 };
 
 
